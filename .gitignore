@@ -1,3 +1,9 @@
+# Complete set of PubChem SMILES
+raw/CID-SMILES.gz
+
+# script logfiles
+*.log
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
