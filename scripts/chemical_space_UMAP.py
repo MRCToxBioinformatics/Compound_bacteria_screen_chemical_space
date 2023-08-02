@@ -28,7 +28,7 @@ import copy
 
 import numpy as np
 
-from rdkit import DataStructs
+#from rdkit import DataStructs
 
 from scipy.spatial.distance import pdist, jaccard, squareform
 from collections import Counter, defaultdict
@@ -127,64 +127,64 @@ def main(argv=None):
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('--pubchem-smiles-infile', '-pc',
-						dest='pubchem_smiles_inf',
-						type=str,
-						required=True,
-						help='Filename for the pubchem SMILES')
+	                    dest='pubchem_smiles_inf',
+	                    type=str,
+	                    required=True,
+	                    help='Filename for the pubchem SMILES')
 
 	parser.add_argument('--screen-compound-smiles-infile', '-sc',
-						dest='screen_compound_smiles_inf',
-						type=str,
-						required=True,
-						help='Filename for the screen compound SMILES')
+	                    dest='screen_compound_smiles_inf',
+	                    type=str,
+	                    required=True,
+	                    help='Filename for the screen compound SMILES')
 
 
 	parser.add_argument('--seed',
-						dest='seed',
-						type=int,
-						help='Value for seed used in K-fold stratification')
+	                    dest='seed',
+	                    type=int,
+	                    help='Value for seed used in K-fold stratification')
 
 
 	parser.add_argument('--output-prefix', '-out',
-						dest='output_prefix',
-						type=str,
-						help='Prefix for the outfiles')
+	                    dest='output_prefix',
+	                    type=str,
+	                    help='Prefix for the outfiles')
 
 	parser.add_argument('--logfile', '-log',
-						dest='logname',
-						type=str,
-						help=('Filname for log file'))
+	                    dest='logname',
+	                    type=str,
+	                    help=('Filname for log file'))
 
 
 	parser.add_argument('--n-neighbors', '-nn',
-						dest='n_neighbors',
-						type=int,
-						help=('UMAP Number of neighbours'))
+	                    dest='n_neighbors',
+	                    type=int,
+	                    help=('UMAP Number of neighbours'))
 
 
 	parser.add_argument('--minimimum-distance', '-md',
-						dest='min_dist',
-						type=float,
-						help=('UMAP Mimumum distance'))
+	                    dest='min_dist',
+	                    type=float,
+	                    help=('UMAP Mimumum distance'))
 
 
 	parser.set_defaults(n_neighbors=20,
 	                    min_dist=0.1,
 	                    seed=1985,
-						output_prefix='./umap')
+	                    output_prefix='./umap')
 
 	args = parser.parse_args()
 
 	if not args.logname:
 		logging.basicConfig(stream=sys.stdout,
-							format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-							datefmt='%H:%M:%S')
+		                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+		                    datefmt='%H:%M:%S')
 	else:
 		logging.basicConfig(filename=args.logname,
-							filemode='w',
-							format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-							datefmt='%H:%M:%S',
-							level=logging.INFO)
+		                    filemode='w',
+		                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+		                    datefmt='%H:%M:%S',
+		                    level=logging.INFO)
 
 	logging.getLogger('matplotlib.font_manager').disabled = True
 
@@ -217,7 +217,7 @@ def main(argv=None):
 
 	np.random.seed(args.seed)
 	random_selection = np.random.choice(range(0, len(pubchem_smiles['smile'])),
-										size=len(screen_smiles["Compound Class"]), replace=False)
+	                                    size=len(screen_smiles["Compound Class"]), replace=False)
 
 	for ix in random_selection:
 		all_targets_random[ix] = 'Random'
@@ -237,4 +237,4 @@ def main(argv=None):
 	logging.info("Finished!")
 
 if __name__ == "__main__":
-    sys.exit(main())
+	sys.exit(main())
