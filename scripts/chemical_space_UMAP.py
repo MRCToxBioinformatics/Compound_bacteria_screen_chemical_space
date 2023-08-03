@@ -24,14 +24,9 @@ import matplotlib.pyplot as plt
 
 from chemplot import Plotter
 
-import copy
-
 import numpy as np
 
-#from rdkit import DataStructs
-
-from scipy.spatial.distance import pdist, jaccard, squareform
-from collections import Counter, defaultdict
+from scipy.spatial.distance import cdist, jaccard
 
 # Functions to use UMAP to embed and project and then plot
 def get_UMAP_vs_background(plotter_obj,
@@ -127,64 +122,64 @@ def main(argv=None):
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('--pubchem-smiles-infile', '-pc',
-	                    dest='pubchem_smiles_inf',
-	                    type=str,
-	                    required=True,
-	                    help='Filename for the pubchem SMILES')
+						dest='pubchem_smiles_inf',
+						type=str,
+						required=True,
+						help='Filename for the pubchem SMILES')
 
 	parser.add_argument('--screen-compound-smiles-infile', '-sc',
-	                    dest='screen_compound_smiles_inf',
-	                    type=str,
-	                    required=True,
-	                    help='Filename for the screen compound SMILES')
+						dest='screen_compound_smiles_inf',
+						type=str,
+						required=True,
+						help='Filename for the screen compound SMILES')
 
 
 	parser.add_argument('--seed',
-	                    dest='seed',
-	                    type=int,
-	                    help='Value for seed used in K-fold stratification')
+						dest='seed',
+						type=int,
+						help='Value for seed used in K-fold stratification')
 
 
 	parser.add_argument('--output-prefix', '-out',
-	                    dest='output_prefix',
-	                    type=str,
-	                    help='Prefix for the outfiles')
+						dest='output_prefix',
+						type=str,
+						help='Prefix for the outfiles')
 
 	parser.add_argument('--logfile', '-log',
-	                    dest='logname',
-	                    type=str,
-	                    help=('Filname for log file'))
+						dest='logname',
+						type=str,
+						help=('Filname for log file'))
 
 
 	parser.add_argument('--n-neighbors', '-nn',
-	                    dest='n_neighbors',
-	                    type=int,
-	                    help=('UMAP Number of neighbours'))
+						dest='n_neighbors',
+						type=int,
+						help=('UMAP Number of neighbours'))
 
 
 	parser.add_argument('--minimimum-distance', '-md',
-	                    dest='min_dist',
-	                    type=float,
-	                    help=('UMAP Mimumum distance'))
+						dest='min_dist',
+						type=float,
+						help=('UMAP Mimumum distance'))
 
 
 	parser.set_defaults(n_neighbors=20,
-	                    min_dist=0.1,
-	                    seed=1985,
-	                    output_prefix='./umap')
+						min_dist=0.1,
+						seed=1985,
+						output_prefix='./umap')
 
 	args = parser.parse_args()
 
 	if not args.logname:
 		logging.basicConfig(stream=sys.stdout,
-		                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-		                    datefmt='%H:%M:%S')
+							format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+							datefmt='%H:%M:%S')
 	else:
 		logging.basicConfig(filename=args.logname,
-		                    filemode='w',
-		                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-		                    datefmt='%H:%M:%S',
-		                    level=logging.INFO)
+							filemode='w',
+							format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+							datefmt='%H:%M:%S',
+							level=logging.INFO)
 
 	logging.getLogger('matplotlib.font_manager').disabled = True
 
@@ -209,19 +204,7 @@ def main(argv=None):
 
 	all_smiles = list(pubchem_smiles['smile']) + list(screen_smiles["PUBCHEM_isosmiles"])
 	all_targets = ['PubChem']*len(pubchem_smiles['smile'])+ list(screen_smiles["Compound Class"])
-
-	all_cids = list(pubchem_smiles['CID']) + list(screen_smiles['PubChem CID'])
-
-
-	all_targets_random = copy.copy(all_targets)
-
-	np.random.seed(args.seed)
-	random_selection = np.random.choice(range(0, len(pubchem_smiles['smile'])),
-	                                    size=len(screen_smiles["Compound Class"]), replace=False)
-
-	for ix in random_selection:
-		all_targets_random[ix] = 'Random'
-		
+	
 	logging.info("Obtaining the ECFPs")
 
 	cp = Plotter.from_smiles(all_smiles, target=all_targets, target_type="C", sim_type='structural')
@@ -234,6 +217,43 @@ def main(argv=None):
 
 	plot_UMAP_vs_background(umap, outfile_prefix=args.output_prefix)
 
+	logging.info("Extracting ECFPs")
+	all_compounds2smiles = pd.DataFrame(all_targets, all_smiles, columns=['Compound Class'])
+
+	ecfp = cp._Plotter__df_descriptors
+	ecfp = ecfp.merge(all_compounds2smiles, left_index=True, right_index=True)
+
+	logging.info("Convert to Jaccard distance")	
+	
+	screen_rows = ecfp[ecfp['Compound Class']!='PubChem']
+	pubchem_rows = ecfp[ecfp['Compound Class']=='PubChem']
+	
+	jacc_dis = cdist(pubchem_rows.drop('Compound Class', axis=1),
+	                 screen_rows.drop('Compound Class', axis=1),
+	                 'jaccard')
+
+	logging.info("Get minimum distances between compounds")	
+	
+	pollutant_classes = ['Pesticide', 'Pesticide metabolite', 'Pesticide-related', 'Industrial chemical', 'Mycotoxin']
+	pollutant_indexes = [ix for ix,x in enumerate(screen_rows['Compound Class']) if x  in pollutant_classes]
+	
+	drug_indexes = [ix for ix,x in enumerate(screen_rows['Compound Class']) if x =='Pharmaceutical drugs']
+
+	min_jacc = np.append(
+		np.append(np.min(jacc_dis, 1),
+		          np.min(jacc_dis[:,pollutant_indexes], 1)),
+		np.min(jacc_dis[:,drug_indexes], 1))
+	
+	comparison = ((['All',]*len(pubchem_rows.index)) +
+	              ['Environmental Pollutants',]*len(pubchem_rows.index) + 
+	              ['Pharmaceutical drugs',]*len(pubchem_rows.index))
+
+	min_jacc_df = pd.DataFrame({'min_jacc': min_jacc,
+	                           'comparison': comparison})
+
+	logging.info("Saving distances to file")		
+	min_jacc_df.to_csv(args.output_prefix + '_min_jaccard.tsv', index=False, sep='\t')
+	
 	logging.info("Finished!")
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ To create a suitable environment to run the script, we suggest using conda/mamba
 ```bash
 conda create -n compound_visualisation python=3.10
 conda activate compound_visualisation
-mamba install -y -c conda-forge -c bioconda umap-learn pandas numpy scipy matplotlib seaborn chemplot
+mamba install -y -c conda-forge -c bioconda umap-learn pandas numpy scipy matplotlib seaborn chemplot bokeh==2.4.3
 ```
 
 To generate the UMAP plot, run:
