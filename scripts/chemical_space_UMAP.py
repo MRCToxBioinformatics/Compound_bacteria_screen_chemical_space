@@ -30,11 +30,11 @@ from scipy.spatial.distance import cdist, jaccard
 
 # Functions to use UMAP to embed and project and then plot
 def get_UMAP_vs_background(plotter_obj,
-						   background_name='PubChem',
-						   foreground_name=None,
-						   n_neighbors = 20,
-						   min_dist = 0.25, 
-						   random_state=1985):
+                           background_name='PubChem',
+                           foreground_name=None,
+                           n_neighbors = 20,
+                           min_dist = 0.25,
+                           random_state=1985):
    
 	data = plotter_obj._Plotter__df_descriptors
 	data_bg = data.loc[[x==background_name for x in plotter_obj._Plotter__target],:]
@@ -62,16 +62,16 @@ def get_UMAP_vs_background(plotter_obj,
 	return(df_data)
 
 def plot_UMAP_vs_background(df_data,
-							palette=('#EEEEEE',
-									 "#F0E442",
-									 "#56B4E9",
-									 "#D55E00",
-									 "#E69F00",
-									 "#0072B2",
-									 "#000000",
-									 "#CC79A7",
-									 "#009E73"),
-						   outfile_prefix = None):
+                            palette=('#EEEEEE',
+                                     "#F0E442",
+                                     "#56B4E9",
+                                     "#D55E00",
+                                     "#E69F00",
+                                     "#0072B2",
+                                     "#000000",
+                                     "#CC79A7",
+                                     "#009E73"),
+                            outfile_prefix = None):
 	
 	size=20
 	hue = 'type'
@@ -80,15 +80,17 @@ def plot_UMAP_vs_background(df_data,
 	sns.set_style("white")
 	sns.set_context("notebook", font_scale=size*0.15)
 	fig, ax = plt.subplots(figsize=(size,size))
+
 	plot = sns.scatterplot(x=0, y=1, hue=hue,
-						   hue_order=['PubChem',
-									  'Pharmaceutical drugs',
-									  'Pesticide',
-									  'Pesticide metabolite',
-									  'Pesticide-related',
-									  'Industrial chemical',
-									  'Mycotoxin'],
-						   palette=palette, data=df_data, s=size*3)
+                               hue_order=['PubChem',
+                                          'Pharmaceutical drugs',
+                                          'Pesticide',
+                                          'Pesticide metabolite',
+                                          'Pesticide-related',
+                                          'Industrial chemical',
+                                          'Mycotoxin'],
+                               palette=palette, data=df_data, s=size*3)
+
 	plot.set_label("scatter")
 	axis = plot
 	plot.legend(markerscale=size*0.1, fontsize=size*1.2, frameon=False)
@@ -171,9 +173,9 @@ def main(argv=None):
 	args = parser.parse_args()
 
 	if not args.logname:
-		logging.basicConfig(stream=sys.stdout,
-							format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-							datefmt='%H:%M:%S')
+                logging.basicConfig(stream=sys.stdout,
+                                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                                    datefmt='%H:%M:%S')
 	else:
 		logging.basicConfig(filename=args.logname,
 							filemode='w',
