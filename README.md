@@ -3,21 +3,22 @@ This repository contains the scripts and output for the visualisations of the ch
 
 
 ## Set up environment
-To create a suitable environment to run the script, we suggest using conda/mamba. The following commands will create a working environment with the depedencies installed.
+To create a suitable environment to run the script, we suggest using conda/mamba. The following commands will create a working environment with the dependencies installed.
 
 ```bash
 conda create -n compound_visualisation python=3.10
 conda activate compound_visualisation
-mamba install -y -c conda-forge -c bioconda umap-learn pandas numpy scipy matplotlib seaborn chemplot bokeh==2.4.3
+mamba install -y -c conda-forge -c bioconda umap-learn pandas numpy scipy \
+    matplotlib seaborn chemplot bokeh==2.4.3 r-ggplot2 r-optparse r-dplyr
 ```
 
 To generate the UMAP plot, run:
 
 ```bash
-python scripts/chemical_space_UMAP.py -pc raw/CID-SMILES_random_25K.tsv -sc raw/compound2smile.tsv --log umap.log --output-prefix results/plots/umap
+python scripts/chemical_space_UMAP.py -pc raw/CID-SMILES_random_25K.tsv -sc raw/compound2smile.tsv --log umap.log --output-prefix results/umap
 ```
 
-To plot the Tanimoto distance between PubChem compounds and screened compounds, run:
+To plot the Tanimoto distance between PubChem compounds and screened compounds, run the following. Note that `results/umap_min_jaccard.tsv` is a file created by `scripts/chemical_space_UMAP.py`.
 ```bash
-(ADD COMMAND HERE)
+scripts/plot_tanimoto.R --min-jacc-inf results/umap_min_jaccard.tsv --plot-prefix results/plot
 ```
