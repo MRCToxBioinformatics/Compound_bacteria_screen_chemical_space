@@ -34,10 +34,45 @@ p <- jacc_dist %>%
         axis.line = element_line(colour = "black", linewidth = 0.5),
         legend.position=c(1,1), legend.justification = c("right", "top"))
 
+
+  # from https://stackoverflow.com/questions/27233738/finding-location-of-maximum-d-statistic-from-ks-test
+  compare <- function(x, y) {
+    n <- length(x); m <- length(y)
+    w <- c(x, y)
+    o <- order(w)
+    z <- cumsum(ifelse(o <= n, m, -n))
+    i <- which.max(abs(z))
+    w[o[i]]
+  }
+
+  all_jacc <- jacc_dist %>% filter(comparison=='All') %>% pull(min_jacc) * 100
+  drugs_jacc <- jacc_dist %>% filter(comparison=='Pharmaceutical drugs') %>% pull(min_jacc) * 100
+
+  u <- compare(all_jacc, drugs_jacc)
+  e.x <- ecdf(all_jacc)
+  e.y <- ecdf(drugs_jacc)
+
+  D_yend = 100*(e.y(u))
+  D_ystart = 100*(e.x(u))
+  D_x = 1-(u/100)
+
+  ks_res <- ks.test(all_jacc, drugs_jacc)
+
+  p1 <- p + geom_segment(x=D_x, xend=D_x, y=D_ystart, yend=D_yend,
+                         colour="#d55e00", linewidth=0.25) +
+    annotate(geom='text', label=sprintf('KS-test:\nD = %s\np%s',
+                                        round(ks_res$statistic,3),
+                                        ifelse(ks_res$p.value>2.2e-16, paste0(' = ', ks_res$p.value), ' < 2.2e-16')),
+             x=0.5,
+             y=mean(c(D_ystart, D_yend)),
+             vjust=0.5, hjust=0,
+             colour="#d55e00",
+             size=5)
+
 ggsave(sprintf('%s_tanimoto_background_vs_screen.png', opt$plot_prefix),
-       width=6, height=6)
+       width=6, height=6, plot=p1)
 ggsave(sprintf('%s_tanimoto_background_vs_screen.pdf', opt$plot_prefix),
-       width=6, height=6)
+       width=6, height=6, plot=p1)
 
 perc_above_0.5 <- jacc_dist %>% group_by(comparison) %>%
   summarise(above_0.5=100*mean(min_jacc<0.5)) %>%
@@ -57,6 +92,6 @@ p2 <- p +
 
 
 ggsave(sprintf('%s_tanimoto_background_vs_screen_zoom.png', opt$plot_prefix),
-       width=4, height=4)
+       width=4, height=4, plot=p2)
 ggsave(sprintf('%s_tanimoto_background_vs_screen_zoom.pdf', opt$plot_prefix),
-       width=4, height=4)
+       width=4, height=4, plot=p2)
