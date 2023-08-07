@@ -62,7 +62,7 @@ def get_UMAP_vs_background(plotter_obj,
 	return(df_data)
 
 def plot_UMAP_vs_background(df_data,
-                            palette=('#EEEEEE',
+                            palette=('#E2E2E2',
                                      "#F0E442",
                                      "#56B4E9",
                                      "#D55E00",
@@ -73,13 +73,13 @@ def plot_UMAP_vs_background(df_data,
                                      "#009E73"),
                             outfile_prefix = None):
 	
-	size=20
+	size=20/2.54
 	hue = 'type'
 
 	palette = palette
 	sns.set_style("white")
 	sns.set_context("notebook", font_scale=size*0.15)
-	fig, ax = plt.subplots(figsize=(size,size))
+	fig, ax = plt.subplots(figsize=(size,size/2))
 
 	plot = sns.scatterplot(x=0, y=1, hue=hue,
                                hue_order=['PubChem',
@@ -89,26 +89,31 @@ def plot_UMAP_vs_background(df_data,
                                           'Pesticide-related',
                                           'Industrial chemical',
                                           'Mycotoxin'],
-                               palette=palette, data=df_data, s=size*3)
+                               palette=palette, data=df_data,
+                               s=size*0.5,
+                               rasterized=True)
 
 	plot.set_label("scatter")
 	axis = plot
-	plot.legend(markerscale=size*0.1, fontsize=size*1.2, frameon=False)
+	plot.legend(markerscale=size*0.05, fontsize=size, frameon=False)
 	# Remove units from axis
 	axis.set(yticks=[])
 	axis.set(xticks=[])
 	# Add labels
-	axis.set_title('',fontsize=size*2)
-	axis.set_xlabel('UMAP1',fontsize=size*2)
-	axis.set_ylabel('UMAP2',fontsize=size*2)
+	axis.set_title('')
+	axis.set_xlabel('UMAP1',fontsize=size)
+	axis.set_ylabel('UMAP2',fontsize=size)
 	axis.spines['top'].set_visible(False)
 	axis.spines['right'].set_visible(False)
 	axis.spines['bottom'].set_visible(False)
 	axis.spines['left'].set_visible(False)
 
+	plt.rcParams['pdf.fonttype'] = 42
+	plt.rcParams['svg.fonttype'] = 'none'
+
 	if(outfile_prefix):
-		plt.savefig(outfile_prefix + '.png')
-		plt.savefig(outfile_prefix + '.pdf')
+		plt.savefig(outfile_prefix + '.png', dpi=400)
+		plt.savefig(outfile_prefix + '.pdf', dpi=400)
 
 
 def main(argv=None):
