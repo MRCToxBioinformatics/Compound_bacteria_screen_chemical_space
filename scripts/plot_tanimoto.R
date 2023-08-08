@@ -22,7 +22,7 @@ p <- jacc_dist %>%
   
   scale_colour_manual(values=c("#f0e442", "#359B73", 'black', 'grey'),
                       name='Screen compound set') +
-  geom_line(aes(y = 100*(1 - ..y..)), stat='ecdf') +
+  ggrastr::rasterise(geom_line(aes(y = 100*(1 - ..y..)), stat='ecdf'),dpi=400) +
   xlab('Tanimoto similarity threshold') +
   ylab('PubChem compounds (%)') +
   scale_y_continuous(expand = c(0,0)) +

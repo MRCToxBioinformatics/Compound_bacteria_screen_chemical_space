@@ -9,7 +9,9 @@ To create a suitable environment to run the script, we suggest using conda/mamba
 conda create -n compound_visualisation python=3.10
 conda activate compound_visualisation
 mamba install -y -c conda-forge -c bioconda umap-learn pandas numpy scipy \
-    matplotlib seaborn chemplot bokeh==2.4.3 r-ggplot2 r-optparse r-dplyr
+    matplotlib seaborn chemplot bokeh==2.4.3 \
+    r-ggplot2 r-optparse r-dplyr r-devtools
+R -e "devtools::install_github('VPetukhov/ggrastr')"
 ```
 
 To generate the UMAP plot, run:
