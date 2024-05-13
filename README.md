@@ -20,7 +20,7 @@ To generate the UMAP plot, run:
 python scripts/chemical_space_UMAP.py -pc raw/CID-SMILES_random_25K.tsv -sc raw/compound2smile.tsv --log umap.log --output-prefix results/umap
 ```
 
-To plot the Tanimoto distance between PubChem compounds and screened compounds, run the following. Note that `results/umap_min_jaccard.tsv` is a file created by `scripts/chemical_space_UMAP.py`.
+To plot the Tanimoto distance between PubChem compounds and screened compounds, run the following. Note that `results/umap_min_jaccard.tsv` and `results/umap_min_pollutant_drug_jaccard.tsv` are files created by `scripts/chemical_space_UMAP.py`.
 ```bash
-scripts/plot_tanimoto.R --min-jacc-inf results/umap_min_jaccard.tsv --plot-prefix results/plot
+scripts/plot_tanimoto.R --min-jacc-inf results/umap_min_jaccard.tsv --min-jacc-pol-drug-inf results/umap_min_pollutant_drug_jaccard.tsv --plot-prefix results/plot 
 ```
