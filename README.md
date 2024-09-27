@@ -1,5 +1,5 @@
 # Chemical space visualisations for bacterial growth screen compounds
-This repository contains the scripts and output for the visualisations of the chemical space coverage for the compounds screened for their impact on bacterial growth. The results are presented in Kamrad &amp; Lindell et al (manuscript link TBC).
+This repository contains the scripts and output for the visualisations of the chemical space coverage for the compounds screened for their impact on bacterial growth. The results are presented in [Lindell, Kamrad &amp; Roux et al](https://www.biorxiv.org/content/10.1101/2024.09.05.610817v1).
 
 
 ## Set up environment
